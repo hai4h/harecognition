@@ -1,0 +1,23 @@
+# HARecognition application configuration
+# Camera
+camera_id: 0
+target_fps: 30
+camera_resolution: [1280, 720]
+
+# Initial UI mode (1 = Continuous Tracking, 2 = Attendance)
+mode: 1
+
+# Mode 2: Attendance gesture guide zone (normalized [x, y, w, h] in image coords)
+guide_zone: [0.30, 0.20, 0.40, 0.60]
+gesture_min_frames: 5
+
+# FAISS / MongoDB
+faiss_threshold_mode2: 0.65
+mongodb_uri: "mongodb://localhost:27017"
+mongodb_db: "harecognition"
+
+# UI telemetry
+telemetry_throttle_hz: 2
+audio_feedback_enabled: true
+audio_success_path: "assets/sounds/success.wav"
+audio_error_path: "assets/sounds/error.wav"

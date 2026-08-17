@@ -15,7 +15,7 @@
 3. Initialize the **build venv** for model conversion only: `uv venv --python 3.11 .venv-dev` and install `tensorflow`, `deepface`, `tf2onnx` there. This venv is NEVER imported at runtime and NEVER included in the packaged kiosk binary. Record its packages in `installed_packages_log.txt` under a `[.venv-dev]` section.
 4. Scaffold the complete project tree from `DESCRIPTION.md` Section 7:
    ```text
-   edgeface-ai/
+   harecognition/
    ├── assets/qss/            # dark_theme.qss, kiosk_overlay.qss
    ├── assets/sounds/         # success.wav, error.wav
    ├── configs/               # app_config.yaml, model_config.yaml

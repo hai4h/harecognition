@@ -6,7 +6,7 @@ Here is the complete, comprehensive architecture specification file written in E
 
 ## 1. Executive Summary
 
-**EdgeFace-AI** is an edge-native, zero-latency computer vision system designed for standalone kiosks, physical security checkpoints, and enterprise time-attendance terminals. 
+**HARecognition** is an edge-native, zero-latency computer vision system designed for standalone kiosks, physical security checkpoints, and enterprise time-attendance terminals. 
 
 By eliminating the network overhead of client-server (HTTP/WebRTC) models and hosting the entire pipeline directly on local hardware using **PyQt6**, **ONNX Runtime**, and **FAISS in-memory vector indices**, the system achieves native camera frame rates (30–60+ FPS) with zero frame-dropping and sub-millisecond query latency.
 
@@ -204,7 +204,7 @@ To prevent UI lockup and maintain a rock-solid 60 FPS display, computational tas
 ## 7. Recommended Project Layout
 
 ```text
-edgeface-ai/
+harecognition/
 ├── assets/
 │   ├── qss/                          # Qt stylesheets (Modern Kiosk themes)
 │   │   ├── dark_theme.qss

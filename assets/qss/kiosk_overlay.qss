@@ -1,0 +1,24 @@
+/* HARecognition kiosk overlay stylesheet (applied on top of dark_theme) */
+#AttendanceCard {
+    background-color: rgba(20, 40, 20, 230);
+    border: 2px solid #4caf50;
+    border-radius: 8px;
+    padding: 12px;
+}
+#AttendanceCard QLabel#cardName {
+    font-size: 22px;
+    font-weight: bold;
+    color: #4caf50;
+}
+#AttendanceCard QLabel#cardMeta { color: #c8c8c8; font-size: 13px; }
+
+#StatsPanel {
+    background-color: #141414;
+    border: 1px solid #333333;
+    border-radius: 6px;
+    padding: 8px;
+}
+#StatsPanel QLabel { color: #b0b0b0; }
+#StatsPanel QLabel[role="value"] { color: #ffffff; font-weight: bold; }
+
+#VideoWidget { background-color: #000000; border: 1px solid #333333; }

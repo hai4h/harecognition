@@ -1,0 +1,27 @@
+# HARecognition model configuration
+# All neural models (except MediaPipe Hands) run through ONNX Runtime.
+# Designed provider chain: CUDAExecutionProvider -> CPUExecutionProvider.
+# ROCm is an opt-in workaround ONLY: enabled exclusively via enable_rocm_workaround.
+
+models:
+  yolo_face:
+    path: "models/yolo_face_custom.onnx"
+    input: [640, 640, 3]   # RGB
+  ghostfacenet_512:
+    path: "models/ghostfacenet_512.onnx"
+    input: [112, 112, 3]   # RGB
+  arcface_512:
+    path: "models/arcface_512.onnx"
+    input: [112, 112, 3]   # RGB
+
+provider_priority:
+  - CUDA
+  - CPU
+
+enable_rocm_workaround: false
+# Present but ONLY prepended to provider_priority when enable_rocm_workaround is true
+rocm_execution_provider: "ROCMExecutionProvider"
+
+cpu_session_options:
+  arena_extend_strategy: "kSameAsRequested"
+  intra_op_num_threads: 4

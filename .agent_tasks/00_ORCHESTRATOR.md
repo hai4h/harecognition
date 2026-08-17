@@ -15,6 +15,6 @@
 - If the ROCm workaround flag is enabled and session creation fails, the inference manager MUST transparently fall back to CUDA, then CPU, and log the fallback.
 
 ## Architecture Reference
-- The authoritative system specification is `DESCRIPTION.md` (EdgeFace-AI: edge-native, dual-mode Face Recognition & Attendance).
+- The authoritative system specification is `DESCRIPTION.md` (HARecognition: edge-native, dual-mode Face Recognition & Attendance).
 - System components: `core/` (database, vector_engine, tracker, gesture), `pipelines/` (inference_manager, mode_tracking, mode_attendance), `ui/` (main_window, video_widget, components), `models/`, `configs/`, `assets/`, `scripts/`.
 - Primary acceleration target: NVIDIA CUDA. Guaranteed fallback: x86_64 CPU (AVX2/AVX-512). AMD ROCm: experimental workaround, disabled by default.

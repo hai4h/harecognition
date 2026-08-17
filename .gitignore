@@ -1,1 +1,13 @@
 .agent_tasks/
+DESCRIPTION.md
+.mongodb/
+.venv/
+.venv-dev/
+__pycache__/
+*.pyc
+.pytest_cache/
+models/*.onnx
+models/*.task
+dist/
+build/
+installed_packages_log.txt
