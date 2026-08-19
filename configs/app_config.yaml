@@ -1,6 +1,9 @@
 # HARecognition application configuration
-# Camera
+# Camera. camera_source: "virtual" | "device:N" | /path/to/video.mp4
+# (falls back to camera_id when camera_source is absent)
 camera_id: 0
+camera_source: 0
+start_camera_on_launch: false
 target_fps: 30
 camera_resolution: [1280, 720]
 

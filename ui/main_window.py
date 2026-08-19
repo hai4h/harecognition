@@ -6,6 +6,7 @@ import time
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtWidgets import (
     QComboBox,
+    QFileDialog,
     QHBoxLayout,
     QLabel,
     QMainWindow,
@@ -43,9 +44,15 @@ class MainWindow(QMainWindow):
         self._btn_mode1.clicked.connect(lambda: self.set_mode(1))
         self._btn_mode2.clicked.connect(lambda: self.set_mode(2))
         self._cam_selector = QComboBox()
-        self._cam_selector.addItem("Virtual (test)", -1)
+        self._cam_selector.addItem("Virtual (test)", "virtual")
         for dev in sorted(self._list_cameras()):
             self._cam_selector.addItem(dev, dev)
+        self._cam_selector.addItem("Video file...", "__file__")
+        self._cam_selector.currentIndexChanged.connect(self._on_cam_selected)
+        self._btn_cam_toggle = QPushButton("Start Camera")
+        self._btn_cam_toggle.clicked.connect(self._toggle_camera)
+        self._camera_running = False
+        self._video_source = None
         self._mode_state_label = QLabel("Mode 1")
         self._mode_state_label.setObjectName("modeStateLabel")
         self._mode_state_label.setProperty("state", "align")
@@ -53,6 +60,7 @@ class MainWindow(QMainWindow):
         controls.addWidget(self._btn_mode2)
         controls.addWidget(QLabel("Camera:"))
         controls.addWidget(self._cam_selector)
+        controls.addWidget(self._btn_cam_toggle)
         controls.addStretch(1)
         controls.addWidget(self._mode_state_label)
         root.addLayout(controls)
@@ -74,6 +82,7 @@ class MainWindow(QMainWindow):
         self._worker.metadata_ready.connect(self._on_metadata)
         self._worker.attendance_confirmed.connect(self._on_attendance)
         self._worker.error.connect(self._on_error)
+        self._worker.fatal.connect(self._on_fatal)
         self._camera.backpressure_fn = self._worker.can_accept
 
         self._telemetry_timer = QTimer(self)  # 2 Hz throttle (spec)
@@ -89,6 +98,7 @@ class MainWindow(QMainWindow):
             self._cycle_timer.start()
 
         self.set_mode(self._mode)
+        self._sync_cam_selector()
 
     @staticmethod
     def _list_cameras():
@@ -97,6 +107,57 @@ class MainWindow(QMainWindow):
             if os.path.exists(f"/dev/video{i}"):
                 devs.append(f"/dev/video{i}")
         return devs
+
+    def _sync_cam_selector(self) -> None:
+        src = self._camera._source
+        self._updating = True
+        if isinstance(src, str) and src == "virtual":
+            self._cam_selector.setCurrentIndex(0)
+        elif isinstance(src, str) and src.startswith("device:"):
+            target = f"/dev/video{src.split(':', 1)[1]}"
+            idx = self._cam_selector.findData(target)
+            if idx >= 0:
+                self._cam_selector.setCurrentIndex(idx)
+        elif isinstance(src, str) and src not in ("virtual", "__file__"):
+            self._video_source = src
+            file_idx = self._cam_selector.count() - 1
+            self._cam_selector.setItemText(file_idx, os.path.basename(src))
+            self._cam_selector.setItemData(file_idx, src)
+            self._cam_selector.setCurrentIndex(file_idx)
+        self._updating = False
+
+    def _on_cam_selected(self, index: int) -> None:
+        if getattr(self, "_updating", False):
+            return
+        data = self._cam_selector.itemData(index)
+        if data == "__file__":
+            path, _ = QFileDialog.getOpenFileName(
+                self, "Select video source", "", "Video files (*.mp4 *.avi *.mkv *.mov)")
+            if not path:
+                self._sync_cam_selector()  # revert selection
+                return
+            self._video_source = path
+            self._cam_selector.setItemText(index, os.path.basename(path))
+            self._cam_selector.setItemData(index, path)
+            self._camera.set_source(path)
+        elif data is not None:
+            if data == "virtual":
+                self._camera.set_source("virtual")
+            else:
+                dev_id = data.split("/dev/video", 1)[1]
+                self._camera.set_source(f"device:{dev_id}")
+
+    def _toggle_camera(self) -> None:
+        if self._camera_running:
+            self._camera.stop()
+            self._camera_running = False
+            self._btn_cam_toggle.setText("Start Camera")
+            self._video.clear()  # black viewport when stopped
+            self.statusBar().showMessage("Camera: STOPPED")
+        else:
+            self._camera.start()
+            self._camera_running = True
+            self._btn_cam_toggle.setText("Stop Camera")
 
     def set_mode(self, mode: int) -> None:
         self._mode = mode
@@ -142,6 +203,11 @@ class MainWindow(QMainWindow):
         print(f"AI_ERROR: {message}", flush=True)
         self.statusBar().showMessage(f"ERROR: {message}")
         self._play_audio("error")
+
+    def _on_fatal(self, message: str) -> None:
+        print(f"AI_FATAL: {message}", flush=True)
+        self._play_audio("error")
+        self.close()  # clean shutdown path (joins threads, exit code 1)
 
     def _play_audio(self, kind: str) -> None:
         if self._test_mode or not self._cfg.get("audio_feedback_enabled", True):

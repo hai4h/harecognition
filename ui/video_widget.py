@@ -27,6 +27,11 @@ class VideoWidget(QWidget):
         self._pixmap = QPixmap.fromImage(image.copy())
         self.update()
 
+    def clear(self) -> None:
+        """Drop the last frame; paintEvent falls back to solid black."""
+        self._pixmap = None
+        self.update()
+
     def paintEvent(self, event) -> None:
         painter = QPainter(self)
         painter.fillRect(self.rect(), QColor(0, 0, 0))
